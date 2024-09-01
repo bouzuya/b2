@@ -26,6 +26,13 @@ enum CommandSubcommand {
     },
     /// List all key-value pairs
     List,
+    /// Set the value for a given key
+    Set {
+        #[arg()]
+        key: String,
+        #[arg()]
+        value: String,
+    },
 }
 
 fn main() -> anyhow::Result<()> {
@@ -36,6 +43,9 @@ fn main() -> anyhow::Result<()> {
                 self::command::config::get::execute(self::command::config::get::Args { key })
             }
             CommandSubcommand::List => self::command::config::list::execute(),
+            CommandSubcommand::Set { key, value } => {
+                self::command::config::set::execute(self::command::config::set::Args { key, value })
+            }
         },
         Subcommand::Edit { id } => self::command::edit::execute(self::command::edit::Args { id }),
         Subcommand::List => self::command::list::execute(),

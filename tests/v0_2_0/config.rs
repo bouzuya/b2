@@ -11,6 +11,7 @@ fn test() -> anyhow::Result<()> {
             "Commands:\n",
             "  get   Get the value for a given key\n",
             "  list  List all key-value pairs\n",
+            "  set   Set the value for a given key\n",
             "  help  Print this message or the help of the given subcommand(s)\n",
             "\n",
             "Options:\n",
