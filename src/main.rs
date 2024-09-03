@@ -8,24 +8,21 @@ struct Cli {
 
 #[derive(clap::Subcommand)]
 enum Subcommand {
-    /// Config
+    /// Manage configs
     #[clap(subcommand)]
     Config(CommandSubcommand),
-    /// Edit
+    /// Edit the b with the given id
     Edit { id: String },
-    /// List
+    /// List bs created today
     List,
-    /// New
+    /// Create a new b
     New,
 }
 
 #[derive(clap::Subcommand)]
 enum CommandSubcommand {
     /// Get the value for a given key
-    Get {
-        #[arg()]
-        key: String,
-    },
+    Get { key: String },
     /// List all key-value pairs
     List,
     /// Set the value for a given key
