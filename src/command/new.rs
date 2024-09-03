@@ -8,13 +8,7 @@ use anyhow::Context as _;
 use chrono::FixedOffset;
 use chrono::Utc;
 
-#[derive(serde::Deserialize)]
-struct ConfigJson {
-    // `"/path/to/data_dir"`
-    data_dir: String,
-    // `"+09:00"`
-    time_zone_offset: String,
-}
+use crate::Config;
 
 #[derive(serde::Serialize)]
 struct MetadataJson {
@@ -23,21 +17,18 @@ struct MetadataJson {
 }
 
 pub fn execute() -> anyhow::Result<()> {
-    let xdg_dirs = xdg::BaseDirectories::with_prefix("net.bouzuya.rust-sandbox.b")?;
-    let config_file_path = xdg_dirs.place_config_file("config.json")?;
-    let config_file = fs::read_to_string(&config_file_path)?;
-    let config = serde_json::from_str::<ConfigJson>(&config_file)?;
-    let dir = PathBuf::from(config.data_dir);
+    let config = Config::load()?;
+    let dir = PathBuf::from(config.data_dir());
     let now = Utc::now();
 
     let flow_dir = dir.join("flow");
     let today_dir = flow_dir
-        .join(&now.format("%Y").to_string())
-        .join(&now.format("%m").to_string())
-        .join(&now.format("%d").to_string());
+        .join(now.format("%Y").to_string())
+        .join(now.format("%m").to_string())
+        .join(now.format("%d").to_string());
     fs::create_dir_all(&today_dir)?;
 
-    let tz = FixedOffset::from_str(&config.time_zone_offset).context("+09:00 is valid offset")?;
+    let tz = FixedOffset::from_str(config.time_zone_offset()).context("+09:00 is valid offset")?;
     let now_in_jst = now.with_timezone(&tz);
 
     let content = "";
@@ -45,7 +36,7 @@ pub fn execute() -> anyhow::Result<()> {
         created_at: now_in_jst.format("%Y-%m-%dT%H:%M:%Si%:z").to_string(),
         tags: vec![],
     };
-    let mut file_path = today_dir.join(&now.format("%Y%m%dT%H%M%SZ").to_string());
+    let mut file_path = today_dir.join(now.format("%Y%m%dT%H%M%SZ").to_string());
     file_path.set_extension("json");
     fs::write(&file_path, serde_json::to_string_pretty(&metadata)?)?;
     file_path.set_extension("md");

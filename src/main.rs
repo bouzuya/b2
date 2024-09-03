@@ -1,4 +1,7 @@
 mod command;
+mod config;
+
+pub use self::config::Config;
 
 #[derive(clap::Parser)]
 struct Cli {

@@ -7,30 +7,21 @@ use std::path::PathBuf;
 use anyhow::Context as _;
 use chrono::Utc;
 
-#[derive(serde::Deserialize)]
-struct ConfigJson {
-    // `"/path/to/data_dir"`
-    data_dir: String,
-    // `"+09:00"`
-    // time_zone_offset: String,
-}
+use crate::Config;
 
 pub fn execute() -> anyhow::Result<()> {
-    let xdg_dirs = xdg::BaseDirectories::with_prefix("net.bouzuya.rust-sandbox.b")?;
-    let config_file_path = xdg_dirs.place_config_file("config.json")?;
-    let config_file = fs::read_to_string(&config_file_path)?;
-    let config = serde_json::from_str::<ConfigJson>(&config_file)?;
-    let dir = PathBuf::from(config.data_dir);
+    let config = Config::load()?;
+    let dir = PathBuf::from(config.data_dir());
     let now = Utc::now();
 
     let flow_dir = dir.join("flow");
     let today_dir = flow_dir
-        .join(&now.format("%Y").to_string())
-        .join(&now.format("%m").to_string())
-        .join(&now.format("%d").to_string());
+        .join(now.format("%Y").to_string())
+        .join(now.format("%m").to_string())
+        .join(now.format("%d").to_string());
 
     let mut lines = BTreeSet::new();
-    for dir_entry in fs::read_dir(&today_dir)? {
+    for dir_entry in fs::read_dir(today_dir)? {
         let dir_entry = dir_entry?;
         let path = dir_entry.path();
         if let Some(extension) = path.extension() {
@@ -47,7 +38,7 @@ pub fn execute() -> anyhow::Result<()> {
                 let _ = Read::read(&mut file, &mut buf)?;
                 let s = String::from_utf8_lossy(&buf);
                 let s = s.trim_end_matches(char::REPLACEMENT_CHARACTER);
-                let s = s.replace("\n", " ");
+                let s = s.replace('\n', " ");
                 let s = s.chars().take(30).collect::<String>();
                 // YYYYMMDDTHHMMSSZ
                 // 12345678901234567...

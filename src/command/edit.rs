@@ -1,29 +1,19 @@
 use std::env;
-use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
 use anyhow::Context as _;
 use chrono::DateTime;
 
+use crate::Config;
+
 pub struct Args {
     pub id: String,
 }
 
-#[derive(serde::Deserialize)]
-struct ConfigJson {
-    // `"/path/to/data_dir"`
-    data_dir: String,
-    // `"+09:00"`
-    // time_zone_offset: String,
-}
-
 pub fn execute(Args { id }: Args) -> anyhow::Result<()> {
-    let xdg_dirs = xdg::BaseDirectories::with_prefix("net.bouzuya.rust-sandbox.b")?;
-    let config_file_path = xdg_dirs.place_config_file("config.json")?;
-    let config_file = fs::read_to_string(&config_file_path)?;
-    let config = serde_json::from_str::<ConfigJson>(&config_file)?;
-    let dir = PathBuf::from(config.data_dir);
+    let config = Config::load()?;
+    let dir = PathBuf::from(config.data_dir());
 
     let date_time = {
         anyhow::ensure!(id.len() == 16);
@@ -43,10 +33,10 @@ pub fn execute(Args { id }: Args) -> anyhow::Result<()> {
 
     let flow_dir = dir.join("flow");
     let date_dir = flow_dir
-        .join(&date_time.format("%Y").to_string())
-        .join(&date_time.format("%m").to_string())
-        .join(&date_time.format("%d").to_string());
-    let mut file_path = date_dir.join(&date_time.format("%Y%m%dT%H%M%SZ").to_string());
+        .join(date_time.format("%Y").to_string())
+        .join(date_time.format("%m").to_string())
+        .join(date_time.format("%d").to_string());
+    let mut file_path = date_dir.join(date_time.format("%Y%m%dT%H%M%SZ").to_string());
     file_path.set_extension("md");
 
     let editor = env::var("EDITOR").context("EDITOR environment variable is invalid")?;
