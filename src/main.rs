@@ -8,12 +8,14 @@ struct Cli {
 
 #[derive(clap::Subcommand)]
 enum Subcommand {
+    /// Config
     #[clap(subcommand)]
     Config(CommandSubcommand),
-    Edit {
-        id: String,
-    },
+    /// Edit
+    Edit { id: String },
+    /// List
     List,
+    /// New
     New,
 }
 
