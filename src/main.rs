@@ -16,8 +16,11 @@ enum Subcommand {
     Config(CommandSubcommand),
     /// Edit the b with the given id
     Edit { id: String },
-    /// List bs created today
-    List,
+    /// List bs
+    List {
+        /// YYYY-MM-DD
+        date: Option<String>,
+    },
     /// Create a new b
     New,
 }
@@ -50,7 +53,9 @@ fn main() -> anyhow::Result<()> {
             }
         },
         Subcommand::Edit { id } => self::command::edit::execute(self::command::edit::Args { id }),
-        Subcommand::List => self::command::list::execute(),
+        Subcommand::List { date } => {
+            self::command::list::execute(self::command::list::Args { date })
+        }
         Subcommand::New => self::command::new::execute(),
     }
 }

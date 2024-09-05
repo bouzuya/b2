@@ -9,16 +9,20 @@ use chrono::Utc;
 
 use crate::Config;
 
-pub fn execute() -> anyhow::Result<()> {
+pub struct Args {
+    pub date: Option<String>,
+}
+
+pub fn execute(Args { date }: Args) -> anyhow::Result<()> {
     let config = Config::load()?;
     let dir = PathBuf::from(config.data_dir());
-    let now = Utc::now();
-
-    let flow_dir = dir.join("flow");
-    let today_dir = flow_dir
-        .join(now.format("%Y").to_string())
-        .join(now.format("%m").to_string())
-        .join(now.format("%d").to_string());
+    let date_string = date.unwrap_or_else(today);
+    let (yyyy, mm, dd) = {
+        let s = date_string.split('-').collect::<Vec<&str>>();
+        anyhow::ensure!(s.len() == 3, "date is not YYYY-MM-DD");
+        (s[0], s[1], s[2])
+    };
+    let today_dir = dir.join("flow").join(yyyy).join(mm).join(dd);
 
     let mut lines = BTreeSet::new();
     if today_dir.exists() {
@@ -36,8 +40,8 @@ pub fn execute() -> anyhow::Result<()> {
 
                     let mut file = File::open(&path)?;
                     let mut buf = [0; 1024];
-                    let _ = Read::read(&mut file, &mut buf)?;
-                    let s = String::from_utf8_lossy(&buf);
+                    let len = Read::read(&mut file, &mut buf)?;
+                    let s = String::from_utf8_lossy(&buf[0..len]);
                     let s = s.trim_end_matches(char::REPLACEMENT_CHARACTER);
                     let s = s.replace('\n', " ");
                     let s = s.chars().take(30).collect::<String>();
@@ -55,4 +59,8 @@ pub fn execute() -> anyhow::Result<()> {
         println!("{}", line);
     }
     Ok(())
+}
+
+fn today() -> String {
+    Utc::now().format("%Y-%m-%d").to_string()
 }
