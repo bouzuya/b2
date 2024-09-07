@@ -10,7 +10,7 @@ fn test() -> anyhow::Result<()> {
             "Commands:\n",
             "  config  Manage configs\n",
             "  edit    Edit the b with the given id\n",
-            "  list    List bs created today\n",
+            "  list    List bs\n",
             "  new     Create a new b\n",
             "  help    Print this message or the help of the given subcommand(s)\n",
             "\n",
