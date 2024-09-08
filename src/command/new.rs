@@ -33,7 +33,7 @@ pub fn execute() -> anyhow::Result<()> {
 
     let content = "";
     let metadata = MetadataJson {
-        created_at: now_in_jst.format("%Y-%m-%dT%H:%M:%Si%:z").to_string(),
+        created_at: now_in_jst.format("%Y-%m-%dT%H:%M:%S%:z").to_string(),
         tags: vec![],
     };
     let mut file_path = today_dir.join(now.format("%Y%m%dT%H%M%SZ").to_string());
