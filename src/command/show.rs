@@ -7,9 +7,10 @@ use crate::Config;
 
 pub struct Args {
     pub id: String,
+    pub path: bool,
 }
 
-pub fn execute(Args { id }: Args) -> anyhow::Result<()> {
+pub fn execute(Args { id, path }: Args) -> anyhow::Result<()> {
     let config = Config::load()?;
     let dir = PathBuf::from(config.data_dir());
 
@@ -37,7 +38,11 @@ pub fn execute(Args { id }: Args) -> anyhow::Result<()> {
         .join(date_time.format("%Y%m%dT%H%M%SZ").to_string());
     file_path.set_extension("md");
 
-    let file_content = fs::read_to_string(file_path)?;
-    print!("{}", file_content);
+    if path {
+        print!("{}", file_path.display());
+    } else {
+        let file_content = fs::read_to_string(file_path)?;
+        print!("{}", file_content);
+    }
     Ok(())
 }

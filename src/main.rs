@@ -24,7 +24,11 @@ enum Subcommand {
     /// Create a new b
     New,
     /// Show the b
-    Show { id: String },
+    Show {
+        id: String,
+        #[arg(long)]
+        path: bool,
+    },
 }
 
 #[derive(clap::Subcommand)]
@@ -59,6 +63,8 @@ fn main() -> anyhow::Result<()> {
             self::command::list::execute(self::command::list::Args { date })
         }
         Subcommand::New => self::command::new::execute(),
-        Subcommand::Show { id } => self::command::show::execute(self::command::show::Args { id }),
+        Subcommand::Show { id, path } => {
+            self::command::show::execute(self::command::show::Args { id, path })
+        }
     }
 }
