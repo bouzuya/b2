@@ -1,4 +1,3 @@
-use std::env;
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
@@ -16,7 +15,13 @@ struct MetadataJson {
     tags: Vec<String>,
 }
 
-pub fn execute() -> anyhow::Result<()> {
+#[derive(clap::Parser)]
+pub struct Args {
+    #[arg(env, long)]
+    editor: String,
+}
+
+pub fn execute(Args { editor }: Args) -> anyhow::Result<()> {
     let config = Config::load()?;
     let dir = PathBuf::from(config.data_dir());
     let now = Utc::now();
@@ -42,7 +47,6 @@ pub fn execute() -> anyhow::Result<()> {
     file_path.set_extension("md");
     fs::write(&file_path, content)?;
 
-    let editor = env::var("EDITOR").context("EDITOR environment variable is invalid")?;
     let status = Command::new("sh")
         .arg("-c")
         .arg(format!("{} {}", editor, file_path.display()))

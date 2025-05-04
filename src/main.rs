@@ -22,7 +22,7 @@ enum Subcommand {
         date: Option<String>,
     },
     /// Create a new b
-    New,
+    New(self::command::new::Args),
     /// Show the b
     Show {
         id: String,
@@ -62,7 +62,7 @@ fn main() -> anyhow::Result<()> {
         Subcommand::List { date } => {
             self::command::list::execute(self::command::list::Args { date })
         }
-        Subcommand::New => self::command::new::execute(),
+        Subcommand::New(args) => self::command::new::execute(args),
         Subcommand::Show { id, path } => {
             self::command::show::execute(self::command::show::Args { id, path })
         }
