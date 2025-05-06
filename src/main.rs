@@ -17,10 +17,7 @@ enum Subcommand {
     /// Edit the b with the given id
     Edit { id: String },
     /// List bs
-    List {
-        /// YYYY-MM-DD
-        date: Option<String>,
-    },
+    List(self::command::list::Args),
     /// Create a new b
     New(self::command::new::Args),
     /// Show the b
@@ -59,9 +56,7 @@ fn main() -> anyhow::Result<()> {
             }
         },
         Subcommand::Edit { id } => self::command::edit::execute(self::command::edit::Args { id }),
-        Subcommand::List { date } => {
-            self::command::list::execute(self::command::list::Args { date })
-        }
+        Subcommand::List(args) => self::command::list::execute(args),
         Subcommand::New(args) => self::command::new::execute(args),
         Subcommand::Show { id, path } => {
             self::command::show::execute(self::command::show::Args { id, path })
