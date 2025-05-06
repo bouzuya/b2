@@ -14,8 +14,8 @@ pub struct Args {
     pub date: Option<String>,
 
     /// Limit the number of results
-    #[clap(long)]
-    pub limit: Option<usize>,
+    #[clap(long, default_value_t = 20)]
+    pub limit: usize,
 
     /// Sort the results
     #[clap(default_value_t = Order::Desc, long, value_enum)]
@@ -65,8 +65,6 @@ pub fn execute(
             Ok((since, until))
         }
     }?;
-
-    let limit = limit.unwrap_or(20);
 
     let config = Config::load()?;
     let dir = PathBuf::from(config.data_dir());
